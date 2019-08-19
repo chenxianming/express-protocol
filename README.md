@@ -4,9 +4,9 @@ Decode protobuf data for express
 - With the protobufjs library.
 - It's easy to use.
 
-[![NPM version](https://img.shields.io/npm/v/express-protocol.svg)](https://www.npmjs.com/package/@cxm/logsync)
+[![NPM version](https://img.shields.io/npm/v/express-protocol.svg)](https://www.npmjs.com/package/express-protocol)
 [![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
-[![npm](https://img.shields.io/npm/dt/express-protocol.svg)](https://www.npmjs.com/package/@cxm/logsync)
+[![npm](https://img.shields.io/npm/dt/express-protocol.svg)](https://www.npmjs.com/package/express-protocol)
 [![node](https://img.shields.io/node/v/express-protocol.svg)](https://nodejs.org/en/download/)
 
 # Installation
@@ -17,11 +17,13 @@ Decode protobuf data for express
 
 ### For the client example
 
-	- Include script tag in html
+- Include script tag in html
 
-		<script src="/protobuf.min.js"></script>
+		<script src="https://raw.githubusercontent.com/chenxianming/express-protocol/master/dist/protobuf.min.js"></script>
 
-	- FE encode data to buffer
+  
+- FE encode data to buffer
+  
 
 		var root = protobuf.parse(`
 			syntax = "proto3";
@@ -52,13 +54,33 @@ Decode protobuf data for express
 		});
 
 		var buf = AwesomeMessage.encode(message).finish();
-		var arr = buf.toString().split(',');
+		//You need to convert buf to array string as '[1, 2, 3]'
 
-		console.log( arr );//submit {protoBuf:arr} json data to server
-
-
-### For the simple server
+		var arr = '['+buf.toString()+']';
 		
+		//submit {protoBuf:arr} json data to server
+		console.log( arr );
+
+
+### For the node client
+
+		let buf = AwesomeMessage.encode(message).finish();
+
+		let data = buf.toJSON().data;
+
+		let postArr = [];
+
+		data.forEach( a => postArr.push( a ) );
+
+		let arr = '['+postArr+']';
+
+  		//send postdata to server
+		request( {protoBuf:arr} );
+
+
+### For the server route
+  
+
 		const ExpressProtocol = require('express-protocol');
 
 		let indexDecode = new ExpressProtocol({
@@ -82,8 +104,8 @@ Decode protobuf data for express
 
 
 		router.post('/', indexDecode.decode.bind( indexDecode ), function(req, res, next) {
-
-		  console.log( req.body );
+			//You will recived a json data for req.body.protoData		  
+			console.log( req.body );
 		});
 
 
