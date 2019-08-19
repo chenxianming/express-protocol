@@ -105,18 +105,18 @@ Log the decode result;
 
 ### For the node client( Example for post encode only )
 
-		let buf = AwesomeMessage.encode(message).finish();
+	let buf = AwesomeMessage.encode(message).finish();
 
-		let data = buf.toJSON().data;
+	let data = buf.toJSON().data;
 
-		let postArr = [];
+	let postArr = [];
 
-		data.forEach( a => postArr.push( a ) );
+	data.forEach( a => postArr.push( a ) );
 
-		let arr = '['+postArr+']';
+	let arr = '['+postArr+']';
 
- 		//send postdata to server
-		request( {protoBuf:arr} );
+		//send postdata to server
+	request( {protoBuf:arr} );
 
 
 ### For the server route

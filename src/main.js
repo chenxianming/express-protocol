@@ -13,14 +13,16 @@ class expressProtocol {
         this.root = null;
         this.proto = null;
 
+        this.err = false;
+
         if( !this.packName && ( !this.file || !this.parse ) ){
-            throw Error('Options missing.');
+            return self.err = true;
         }
 
         if( this.file ){
             protobuf.load(  this.file, function(err, root) {
                 if( err ){
-                    throw Error(err);
+                    return self.err = true;
                 }
 
                 self.root = root;
@@ -30,12 +32,12 @@ class expressProtocol {
             this.root = protobuf.parse( self.parse ).root;
             this.proto = this.root.lookupType( self.packName );
         }else{
-            throw Error('Unable to parse proto file.');
+            self.err = true;
         }
     }
 
     middleware( req, res, next ){
-        if( !req.body.protoBuf ){
+        if( !req.body.protoBuf || this.err ){
             return next();
         }
 
@@ -47,7 +49,13 @@ class expressProtocol {
 
         let buf = new Uint8Array( arr );
 
-        let data = this.proto.toObject( this.proto.decode( buf ) );
+        let data;
+
+        try{
+            this.proto.toObject( this.proto.decode( buf ) );
+        }catch(e){
+            return next();
+        }
 
         req.body.protoData = data;
 
@@ -66,7 +74,7 @@ class expressProtocol {
         if( this.send && !this.sendName ){
             protobuf.load( this.send, function(err, rt) {
                 if( err ){
-                    throw Error(err);
+                    return self.err = true;
                 }
 
                 root = rt;
@@ -76,7 +84,7 @@ class expressProtocol {
             root = protobuf.parse( self.send ).root;
             proto = root.lookupType( self.sendName );
         }else{
-            throw Error('The send was invialid.');
+            self.err = true;
         }
 
         const wrap = ( json ) => ( obj ) => {
