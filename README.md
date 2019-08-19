@@ -17,12 +17,12 @@ Decode protobuf data for express
 
 ### For the client example
 
-- Include script tag in html
+Include script tag in html
 
 		<script src="https://raw.githubusercontent.com/chenxianming/express-protocol/master/dist/protobuf.min.js"></script>
 
   
-- FE encode data to buffer
+FE encode data to buffer
   
 
 		var root = protobuf.parse(`
@@ -104,7 +104,7 @@ Decode protobuf data for express
 
 
 		router.post('/', indexDecode.decode.bind( indexDecode ), function(req, res, next) {
-			//You will recived a json data for req.body.protoData		  
+			//You will recived a json data from req.body.protoData		  
 			console.log( req.body );
 		});
 
