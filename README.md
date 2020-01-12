@@ -13,50 +13,92 @@ Decode protobuf data for express
 
     npm i express-protocol
 
+## Covert json to proto sytax see
+### json2proto.js
+
+
+``` 
+const Json2proto = require(./json2proto); 
+
+let json = {
+  "testNum": 5,
+  "testString": "tester",
+  "testBool": true,
+  "testArray": [1,2,3,4],
+  "testObj": {
+    "testNum": 5,
+    "testString": "tester",
+    "testBool": true,
+    "testArray": [1,2,3,4]
+  }
+};
+
+let TypeName = 'Message';
+
+let test = new Json2proto( {
+    json: json,
+    typeName: TypeName
+} );
+
+console.log( test.proto );
+``` 
+
+If you want to covert json file to .proto file, see (author: konsumer)
+
+[js2proto](https://www.npmjs.com/package/js2proto "js2proto")
+
+
 # Usage
 
 ### For the client example
 
 Include script tag in html
 
-		<script src="https://raw.githubusercontent.com/chenxianming/express-protocol/master/dist/protobuf.min.js"></script>
+``` 
+<script src="https://raw.githubusercontent.com/chenxianming/express-protocol/master/dist/protobuf.min.js"></script>
+``` 
+
 
 
 FE encode data to buffer
 
-	  var root = protobuf.parse(`
-		syntax = "proto3";
-		package awesomepackage;
 
-		message AwesomeMessage {
-			optional string stringVal = 1;
-			message EmbeddedMessage {
-				optional int32 key2 = 1;
-				optional string key3 = 2;
-			}
-			optional EmbeddedMessage embeddedExample1 = 2;
-			optional int32 key4 = 3;
-			optional string ke5 = 4;
-		}
-	  `).root;
+``` 
+var root = protobuf.parse(`
+syntax = "proto3";
+package awesomepackage;
 
-	  var AwesomeMessage = root.lookupType("awesomepackage.AwesomeMessage");
+message AwesomeMessage {
+  optional string stringVal = 1;
+  message EmbeddedMessage {
+    optional int32 key2 = 1;
+    optional string key3 = 2;
+  }
+  optional EmbeddedMessage embeddedExample1 = 2;
+  optional int32 key4 = 3;
+  optional string ke5 = 4;
+}
+`).root;
 
-	  var message = AwesomeMessage.create({
-		  stringVal:'123',
-		  embeddedExample1:{
-			  key2:1,
-			  key3:'123'
-		  },
-		  key4:123,
-		  key5:'111'
-	  });
+var AwesomeMessage = root.lookupType("awesomepackage.AwesomeMessage");
 
-	  var buf = AwesomeMessage.encode(message).finish();
-	  var arr = buf.toString();
+var message = AwesomeMessage.create({
+  stringVal:'123',
+  embeddedExample1:{
+    key2:1,
+    key3:'123'
+  },
+  key4:123,
+  key5:'111'
+});
 
-	  //Send array string to server
-	  post( {protoBuf:'['+arr+']' } )
+var buf = AwesomeMessage.encode(message).finish();
+var arr = buf.toString();
+
+//Send array string to server
+post( {protoBuf:'['+arr+']' } )
+``` 
+
 
 If you completed setup server, try to encode postdata and decode response data.
 
@@ -64,35 +106,39 @@ The post format like this one , or you can submit "application/json" format.
 
 ![request](http://www.coldnoir.com/request.png "request")
 
-	  $.post('/', {protoBuf:'['+arr+']' }, function( data ){
 
-		  var root = protobuf.parse(`
-			  syntax = "proto3";
-			  package test;
+``` 
+$.post('/', {protoBuf:'['+arr+']' }, function( data ){
 
-			  message Message {
-				optional string msg = 1;
-				message ResultMessage {
-					required int32 statusCode = 1;
-					required int32 count = 2;
-					message Listobj {
-					  required string key1 = 1;
-					  required int32 key2 = 2;
-					}
-					repeated Listobj list = 3;
-				}
-				optional ResultMessage result = 2;
-			  }
-		  `).root;
+  var root = protobuf.parse(`
+    syntax = "proto3";
+    package test;
 
-		  var arr = [];
+    message Message {
+    optional string msg = 1;
+    message ResultMessage {
+      required int32 statusCode = 1;
+      required int32 count = 2;
+      message Listobj {
+        required string key1 = 1;
+        required int32 key2 = 2;
+      }
+      repeated Listobj list = 3;
+    }
+    optional ResultMessage result = 2;
+    }
+  `).root;
 
-		  var proto = root.lookupType("test.Message");
+  var arr = [];
 
-		  var buf = new Uint8Array( data.protoBuf );
+  var proto = root.lookupType("test.Message");
 
-		  console.log( proto.decode(buf).toJSON() );
-	  });
+  var buf = new Uint8Array( data.protoBuf );
+
+  console.log( proto.decode(buf).toJSON() );
+});
+``` 
+
 
 You will recived an array  to parse.
 
@@ -105,97 +151,113 @@ Log the decode result;
 
 ### For the node client( Example for post encode only )
 
-	let buf = AwesomeMessage.encode(message).finish();
 
-	let data = buf.toJSON().data;
+``` 
+let buf = AwesomeMessage.encode(message).finish();
 
-	let postArr = [];
+let data = buf.toJSON().data;
 
-	data.forEach( a => postArr.push( a ) );
+let postArr = [];
 
-	let arr = '['+postArr+']';
+data.forEach( a => postArr.push( a ) );
 
-		//send postdata to server
-	request( {protoBuf:arr} );
+let arr = '['+postArr+']';
+
+  //send postdata to server
+request( {protoBuf:arr} );A
+``` 
+
 
 
 ### For the server route
 
-	const ExpressProtocol = require("express-protocol");
 
-	let indexDecode = new ExpressProtocol({
-	  packName: "awesomepackage.AwesomeMessage",
-	  parse: `
-		  syntax = "proto3";
-		  package awesomepackage;
+``` 
+const ExpressProtocol = require("express-protocol");
 
-		  message AwesomeMessage {
-			  optional string stringVal = 1;
-			  message EmbeddedMessage {
-				  optional int32 key2 = 1;
-				  optional string key3 = 2;
-			  }
-			  optional EmbeddedMessage embeddedExample1 = 2;
-			  optional int32 key4 = 3;
-			  optional string ke5 = 4;
-		  }
-	  `,
-	  sendName: "test.Message",
-	  send: `
-		syntax = "proto3";
-		package test;
+let indexDecode = new ExpressProtocol({
+  packName: "awesomepackage.AwesomeMessage",
+  parse: `
+    syntax = "proto3";
+    package awesomepackage;
 
-		message Message {
-		  optional string msg = 1;
-		  message ResultMessage {
-			  required int32 statusCode = 1;
-			  required int32 count = 2;
-			  message Listobj {
-				required string key1 = 1;
-				required int32 key2 = 2;
-			  }
-			  repeated Listobj list = 3;
-		  }
-		  optional ResultMessage result = 2;
-		}
-	  `
-	});
+    message AwesomeMessage {
+      optional string stringVal = 1;
+      message EmbeddedMessage {
+        optional int32 key2 = 1;
+        optional string key3 = 2;
+      }
+      optional EmbeddedMessage embeddedExample1 = 2;
+      optional int32 key4 = 3;
+      optional string ke5 = 4;
+    }
+  `,
+  sendName: "test.Message",
+  send: `
+  syntax = "proto3";
+  package test;
 
-	router.post("/", indexDecode.decode(), function(req, res, next) {
+  message Message {
+    optional string msg = 1;
+    message ResultMessage {
+      required int32 statusCode = 1;
+      required int32 count = 2;
+      message Listobj {
+      required string key1 = 1;
+      required int32 key2 = 2;
+      }
+      repeated Listobj list = 3;
+    }
+    optional ResultMessage result = 2;
+  }
+  `
+});
 
-        //You will recived a json data from req.body.protoData          
-        console.log( req.body );
+router.post("/", indexDecode.decode(), function(req, res, next) {
 
-		//And you can see the buffer data in the client response.
-		res.json({
-			msg: "ok",
-			result: {
-				statusCode: 200,
-				list: [
-					{
-						key1: "123",
-						key2: 456
-					},
-					{
-						key1: "test",
-						key2: 789
-					}]
-			}
-		});
+      //You will recived a json data from req.body.protoData          
+      console.log( req.body );
 
-	});
+  //And you can see the buffer data in the client response.
+  res.json({
+    msg: "ok",
+    result: {
+      statusCode: 200,
+      list: [
+        {
+          key1: "123",
+          key2: 456
+        },
+        {
+          key1: "test",
+          key2: 789
+        }]
+    }
+  });
+
+});
+``` 
+
 
 ### Config / syntax
 
-	let indexDecode = new ExpressProtocol({
-		packName:'Index, to get the proto function object',
-		parse:'Text, protocol buffer descriptor',
-		sendName:'options, like a packName, if you want to response protobuf json to client',
-		send:'Text, protocol buffer descriptor for response json.'
-	});
+
+``` 
+let indexDecode = new ExpressProtocol({
+  packName:'Index, to get the proto function object',
+  parse:'Text, protocol buffer descriptor',
+  sendName:'options, like a packName, if you want to response protobuf json to client',
+  send:'Text, protocol buffer descriptor for response json.'
+});
+``` 
+
 
 In the express route
 
-	router.post("/", indexDecode.decode(), function(req, res, next) {
-		//do something
-	});
+
+``` 
+router.post("/", indexDecode.decode(), function(req, res, next) {
+  //do something
+});
+``` 
+
