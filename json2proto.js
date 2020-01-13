@@ -1,10 +1,7 @@
 /*
-@creadit konsumer
-
+@credit konsumer
 Example:
-
-    const Json2proto = require(./json2proto); 
-
+    const Json2proto = require("./json2proto"); 
     let json = {
       "testNum": 5,
       "testString": "tester",
@@ -17,19 +14,13 @@ Example:
         "testArray": [1,2,3,4]
       }
     };
-
     let TypeName = 'Message';
-
     let test = new Json2proto( {
         json: json,
         typeName: TypeName
     } );
-
     console.log( test.proto );
-
 */
-
-const messages = {};
 
 const classify = require('inflection').classify;
 
@@ -118,4 +109,4 @@ class Json2proto {
     }
 }
 
-module.export = Json2proto;
+module.exports = Json2proto;
